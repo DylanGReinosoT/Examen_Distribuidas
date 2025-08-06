@@ -1,23 +1,23 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: inventory-service
+  name: ms-inventario
   namespace: agroflow-namespace
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: inventory-service
+      app: ms-inventario
   template:
     metadata:
       labels:
-        app: inventory-service
+        app: ms-inventario
     spec:
       containers:
-        - name: inventory-service
-          image: inventory-service:latest
+        - name: ms-inventario
+          image: greinoso/ms-inventario:latest
           ports:
-            - containerPort: 8081
+            - containerPort: 3002
           env:
             - name: DB_HOST
               value: "db"
@@ -28,26 +28,26 @@ spec:
             - name: DB_NAME
               value: "agroflow_inventory"
             - name: RABBITMQ_URL
-              value: "amqp://rabbitmq:5672"  # Conexión a RabbitMQ
+              value: "amqp://admin:admin123@localhost:5672"  
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: inventory-service
+  name: ms-inventario
   namespace: agroflow-namespace
 spec:
   selector:
-    app: inventory-service
+    app: ms-inventario
   ports:
     - protocol: TCP
-      port: 8081
-      targetPort: 8081
+      port: 3002
+      targetPort: 3002
   type: ClusterIP
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: inventory-service-ingress
+  name: ms-inventario-ingress
   namespace: agroflow-namespace
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
@@ -56,10 +56,10 @@ spec:
   - host: agroflow.local
     http:
       paths:
-      - path: /api/inventory
+      - path: /api/insumos
         pathType: Prefix
         backend:
           service:
-            name: inventory-service
+            name: ms-inventario
             port:
-              number: 8081
+              number: 3002
