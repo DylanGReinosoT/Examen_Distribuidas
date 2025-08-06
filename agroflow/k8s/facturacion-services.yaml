@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: facturacion-service
+  namespace: agroflow-namespace
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: facturacion-service
+  template:
+    metadata:
+      labels:
+        app: facturacion-service
+    spec:
+      containers:
+        - name: facturacion-service
+          image: facturacion-service:latest
+          ports:
+            - containerPort: 8082
+          env:
+            - name: MONGO_URI
+              value: "mongodb+srv://<username>:<password>@<cluster-url>/agroflow_billing?retryWrites=true&w=majority"
+            - name: RABBITMQ_URL
+              value: "amqp://rabbitmq:5672"  # Conexión a RabbitMQ
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: facturacion-service
+  namespace: agroflow-namespace
+spec:
+  selector:
+    app: facturacion-service
+  ports:
+    - protocol: TCP
+      port: 8082
+      targetPort: 8082
+  type: ClusterIP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: facturacion-service-ingress
+  namespace: agroflow-namespace
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+  - host: agroflow.local
+    http:
+      paths:
+      - path: /api/billing
+        pathType: Prefix
+        backend:
+          service:
+            name: facturacion-service
+            port:
+              number: 8082

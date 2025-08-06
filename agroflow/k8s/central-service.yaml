@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: central-service
+  namespace: agroflow-namespace
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: central-service
+  template:
+    metadata:
+      labels:
+        app: central-service
+    spec:
+      containers:
+        - name: central-service
+          image: central-service:latest  # Imagen que subas a Docker Hub o a tu repositorio
+          ports:
+            - containerPort: 8080
+          env:
+            - name: DB_HOST
+              value: "db"
+            - name: DB_USER
+              value: "postgres"
+            - name: DB_PASSWORD
+              value: "postgres"
+            - name: DB_NAME
+              value: "agroflow"
+            - name: RABBITMQ_URL
+              value: "amqp://rabbitmq:5672"  # Conexión a RabbitMQ
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: central-service
+  namespace: agroflow-namespace
+spec:
+  selector:
+    app: central-service
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+  type: ClusterIP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: central-service-ingress
+  namespace: agroflow-namespace
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+  - host: agroflow.local
+    http:
+      paths:
+      - path: /api/central
+        pathType: Prefix
+        backend:
+          service:
+            name: central-service
+            port:
+              number: 8080
