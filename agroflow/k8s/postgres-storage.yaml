@@ -16,7 +16,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: postgres-pvc
-  namespace: agroflow
+  namespace: agroflow-namespace
 spec:
   accessModes:
     - ReadWriteOnce
