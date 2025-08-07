@@ -46,11 +46,9 @@ kind: Ingress
 metadata:
   name: ms-facturacion-ingress
   namespace: agroflow-namespace
-  annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
   rules:
-  - host: agroflow.local
+  - host: facturacion.agroflow.local
     http:
       paths:
       - path: /api/facturas

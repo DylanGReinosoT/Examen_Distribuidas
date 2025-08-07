@@ -71,11 +71,9 @@ kind: Ingress
 metadata:
   name: ms-central-ingress
   namespace: agroflow-namespace
-  annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
   rules:
-  - host: agroflow.local
+  - host: central.agroflow.local
     http:
       paths:
       - path: /api/agricultores

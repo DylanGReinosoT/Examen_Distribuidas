@@ -71,8 +71,6 @@ kind: Ingress
 metadata:
   name: ms-inventario-ingress
   namespace: agroflow-namespace
-  annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
   rules:
   - host: agroflow.local
